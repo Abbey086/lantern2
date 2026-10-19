@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="lime">
+<head>
+<meta name="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#D9F3A8">
+<meta name="description" content="Lantern finds scripture that meets you where you are. Describe what you're going through and get verses that fit.">
+<title>Lantern — a verse for what you're going through</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23CFF08F'/%3E%3Cpath d='M32 14c8 9 11 15 11 21a11 11 0 0 1-22 0c0-6 3-12 11-21Z' fill='%230A0A0A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="js/tailwind-config.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="font-sans antialiased">
+
+<div id="appRoot" class="phone">
+<div id="clock" class="hidden"></div> 
+
+  <main id="main" class="no-sb" tabindex="-1">
+
+    <!-- ============ HOME ============ -->
+    <section id="view-home" class="view" aria-label="Home">
+      <header class="flex items-center justify-between">
+        <button class="sqbtn" onclick="openDrawer()" aria-label="Open menu" aria-haspopup="dialog"><span data-ic="menu" data-s="20"></span></button>
+        <button id="planBadge" class="planpill" onclick="go('view-pricing')" aria-label="Your plan"><span data-ic="sparkle" data-s="17"></span><span id="planTxt">Free plan</span></button>
+      </header>
+
+      <div class="mt-4 flex gap-2.5">
+        <button class="field searchbtn flex-1" onclick="openSearch()" aria-label="Search for a verse"><span data-ic="search" data-s="19"></span><span>Tell Lantern how you feel…</span></button>
+        <button class="sqbtn" style="height:48px;width:48px" onclick="openFilters()" aria-label="Verse settings"><span data-ic="filter" data-s="20"></span></button>
+      </div>
+
+      <!-- hero carousel -->
+      <div class="relative mt-4" role="region" aria-roledescription="carousel" aria-label="Featured moments">
+        <div id="banner" class="banner" tabindex="0" aria-live="off"></div>
+        <div id="bannerDots" class="dots absolute left-1/2 -translate-x-1/2" style="bottom:-12px"></div>
+      </div>
+
+      <div class="sec-h" style="margin-top:34px"><h2>How are you feeling?</h2><button class="see-all" onclick="go('view-scenarios')">See all</button></div>
+      <div id="moods" class="flex justify-between md:justify-start md:gap-8"></div>
+
+      <div class="sec-h"><h2>Starters for you</h2><button class="see-all" onclick="go('view-scenarios')">See all</button></div>
+      <div id="homeCards" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+
+      <button id="careLink" onclick="go('view-care')" class="care-soft mt-6 flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[13px] font-bold press">
+        <span data-ic="shield" data-s="20" class="shrink-0"></span>
+        <span class="flex-1">Feeling unsafe right now? Get immediate support</span>
+        <span data-ic="chev" data-s="16"></span>
+      </button>
+      <p class="mt-5 px-3 text-center text-[11px] font-medium leading-relaxed text-muted">Lantern is a reading aid, not counseling or medical advice. Scripture text comes from bible-api.com.</p>
+    </section>
+
+    <!-- ============ SEARCH ============ -->
+    <section id="view-search" class="view hidden" aria-label="Search">
+      <div class="flex items-start gap-2.5">
+        <button class="sqbtn" style="height:48px;width:48px" onclick="back()" aria-label="Back"><span data-ic="back" data-s="20"></span></button>
+        <div class="field flex min-w-0 flex-1 items-start gap-2.5 px-3.5 py-3">
+          <span class="sicon mt-[1px] shrink-0 text-ink/70" data-ic="search" data-s="19"></span>
+          <textarea id="sitInput" rows="1" enterkeyhint="search" maxlength="1000" aria-label="Describe what you're going through" placeholder="Tell Lantern how you feel…" class="no-sb w-full min-w-0 flex-1 resize-none bg-transparent font-medium placeholder:text-[#8a8a8a]"></textarea>
+          <button id="clearBtn" class="hidden -my-2 -mr-2 grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink/60" onclick="clearInput()" aria-label="Clear text"><span data-ic="x" data-s="18"></span></button>
+        </div>
+        <button class="sqbtn" style="height:48px;width:48px" onclick="openFilters()" aria-label="Verse settings"><span data-ic="filter" data-s="20"></span></button>
+      </div>
+
+      <div id="recentWrap">
+        <div class="sec-h" style="margin-top:26px"><h2>Recent searches</h2><button class="see-all" onclick="clearRecent()">Clear</button></div>
+        <div id="recentList" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <div id="savedWrap">
+        <div class="sec-h"><h2>Your saved verses</h2><button class="see-all" onclick="go('view-journal')">See all</button></div>
+        <div id="savedList" class="no-sb -mx-5 flex gap-4 overflow-x-auto px-5 pb-1"></div>
+      </div>
+
+      <div class="sec-h"><h2>Popular searches</h2><button class="see-all" onclick="go('view-scenarios')">See all</button></div>
+      <div id="popList" class="grid grid-cols-2 gap-3"></div>
+
+      <button onclick="go('view-care')" class="mt-6 flex w-full items-center justify-center gap-2 py-2 text-[12.5px] font-bold text-[#B3261E]"><span data-ic="shield" data-s="16"></span>Feeling unsafe? Get immediate support</button>
+
+      <div class="stickybar">
+        <p id="quota" class="mb-2.5 text-center text-[11.5px] font-semibold text-muted"></p>
+        <div class="flex gap-2.5"><button id="micBtn" class="sqbtn" style="width:56px;height:56px;border-radius:16px" onclick="mic()" aria-label="Speak your situation"><span data-ic="mic" data-s="22"></span></button><button id="findBtn" class="btn-black flex-1" style="min-height:56px" onclick="search()" aria-disabled="true"><span data-ic="sparkle" data-s="18"></span>Find my verse</button></div>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section id="view-results" class="view hidden" aria-label="Your verses">
+      <header class="flex items-center gap-3">
+        <button class="sqbtn" style="height:48px;width:48px" onclick="back()" aria-label="Back"><span data-ic="back" data-s="20"></span></button>
+        <h1 class="text-[22px] font-extrabold tracking-tight">Your verses</h1>
+      </header>
+      <button id="resEcho" onclick="openSearch(lastSit,{focus:true})" class="field mt-4 flex w-full items-start gap-3 px-4 py-3.5 text-left" aria-label="Edit what you wrote">
+        <span class="flex-1 text-[13px] font-medium italic leading-relaxed text-[#444]"></span>
+        <span class="mt-0.5 shrink-0 text-ink/60" data-ic="edit" data-s="16"></span>
+      </button>
+      <div id="careSlot" class="mt-4"></div>
+      <div id="verseSlot" class="mt-4 flex flex-col gap-4" aria-live="polite"></div>
+      <button id="rerollBtn" onclick="reroll()" class="btn-black mt-4 hidden"><span data-ic="refresh" data-s="18"></span>Show different verses</button>
+      <p class="mt-6 px-3 text-center text-[11px] font-medium leading-relaxed text-muted">Lantern is a reading aid, not counseling or medical advice. Scripture text comes from bible-api.com.</p>
+    </section>
+
+    <!-- ============ SCENARIOS ============ -->
+    <section id="view-scenarios" class="view hidden" aria-label="Scenarios">
+      <h1 class="text-[26px] font-extrabold tracking-tight">Scenarios</h1>
+      <p class="mt-1 text-[13px] font-medium text-muted">Pick a starting point, then add your own words.</p>
+      <div id="catChips" class="no-sb -mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-1" role="tablist" aria-label="Categories"></div>
+      <p id="scCount" class="mt-4 text-[12px] font-semibold text-muted" aria-live="polite"></p>
+      <div id="scList" class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+    </section>
+
+    <!-- ============ JOURNAL ============ -->
+    <section id="view-journal" class="view hidden" aria-label="Journal">
+      <h1 class="text-[26px] font-extrabold tracking-tight">Journal</h1>
+      <p class="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-muted"><span data-ic="lock" data-s="14"></span>Saved on this device only</p>
+      <div id="jEmpty" class="card mt-6 px-6 pb-7 pt-8 text-center">
+        <div class="mx-auto w-40" id="jArt"></div>
+        <h2 class="mt-3 text-[17px] font-extrabold">Your journal is empty</h2>
+        <p class="mx-auto mt-1.5 max-w-[240px] text-[13px] font-medium leading-relaxed text-muted">Save a verse from your results and it will wait for you here.</p>
+        <button class="btn-black mt-5" onclick="openSearch()"><span data-ic="sparkle" data-s="18"></span>Find a verse</button>
+      </div>
+      <div id="jList" class="mt-5 flex flex-col gap-3"></div>
+      <div id="jActions" class="mt-4 flex gap-2.5">
+        <button onclick="exportJournal()" class="btn-soft"><span data-ic="download" data-s="17"></span>Export</button>
+        <button onclick="clearJournal()" class="btn-soft" style="color:#C2271B"><span data-ic="trash" data-s="17"></span>Clear all</button>
+      </div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section id="view-settings" class="view hidden md:pr-16" aria-label="Settings">
+      <h1 class="text-[26px] font-extrabold tracking-tight">Settings</h1>
+
+      <h2 class="mb-2 mt-6 text-[12px] font-bold text-muted">Scripture</h2>
+      <div class="card rows px-5">
+        <div class="row"><label for="setTrans">Translation</label><select id="setTrans" data-set="trans" class="sel"><option value="web">World English (WEB)</option><option value="kjv">King James (KJV)</option><option value="asv">American Standard (ASV)</option><option value="bbe">Basic English (BBE)</option></select></div>
+        <button class="row tg" data-tg="why" role="switch" aria-checked="false"><span>Show “why this verse”</span><i class="knob"></i></button>
+        <button class="row tg" data-tg="auto" role="switch" aria-checked="false"><span>Read verses aloud automatically</span><i class="knob"></i></button>
+      </div>
+
+      <h2 class="mb-2 mt-6 text-[12px] font-bold text-muted">Look and voice</h2>
+      <div class="card rows px-5">
+        <div class="row"><span>Accent color</span><div id="swatches" class="flex items-center gap-3.5" role="radiogroup" aria-label="Accent color"></div></div>
+        <button class="row tg" data-tg="motion" role="switch" aria-checked="false"><span>Reduce motion</span><i class="knob"></i></button>
+        <button class="row tg" data-tg="haptic" role="switch" aria-checked="false"><span>Haptic feedback</span><i class="knob"></i></button>
+        <div class="row"><label for="setLang">Microphone language</label><select id="setLang" data-set="lang" class="sel"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="es-ES">Español</option><option value="fr-FR">Français</option></select></div>
+        <div class="row"><label for="setRate">Speech speed</label><input id="setRate" data-set="rate" type="range" min="0.6" max="1.4" step="0.1"></div>
+      </div>
+
+      <h2 class="mb-2 mt-6 text-[12px] font-bold text-muted">Safety</h2>
+      <div class="card rows px-5">
+        <button class="row tg" data-tg="careLink" role="switch" aria-checked="false"><span>Show support link on Home</span><i class="knob"></i></button>
+        <div class="row"><label for="setBound">Content boundary</label><select id="setBound" data-set="bound" class="sel"><option value="standard">Standard</option><option value="strict">Strict (no violent imagery)</option></select></div>
+      </div>
+
+      <h2 class="mb-2 mt-6 text-[12px] font-bold text-muted">Data and more</h2>
+      <div class="card rows px-5">
+        <button onclick="go('view-pricing')" class="row"><span>Plan and pricing</span><span class="text-muted" data-ic="chev" data-s="18"></span></button>
+        <button onclick="go('view-care')" class="row"><span>Care resources</span><span class="text-muted" data-ic="chev" data-s="18"></span></button>
+        <button onclick="openOnboarding()" class="row"><span>Replay the intro</span><span class="text-muted" data-ic="chev" data-s="18"></span></button>
+        <button onclick="eraseAll()" class="row" style="color:#C2271B"><span>Erase everything</span><span data-ic="trash" data-s="18"></span></button>
+      </div>
+    </section>
+
+    <!-- ============ PRICING ============ -->
+    <section id="view-pricing" class="view hidden" aria-label="Plans">
+      <header class="flex items-center gap-3">
+        <button class="sqbtn" style="height:48px;width:48px" onclick="back()" aria-label="Back"><span data-ic="back" data-s="20"></span></button>
+        <h1 class="text-[22px] font-extrabold tracking-tight">Plans</h1>
+      </header>
+      <div class="seg mt-5" role="group" aria-label="Billing period">
+        <button id="billM" onclick="setBill('m')">Monthly</button>
+        <button id="billY" onclick="setBill('y')">Yearly · save 20%</button>
+      </div>
+      <div id="tiers" class="mt-5 flex flex-col md:flex-row md:gap-2 gap-4"></div>
+      <h2 class="mb-2 mt-7 text-[15px] font-extrabold">Compare</h2>
+      <div id="cmpTable" class="card px-5 py-2 text-[12px]"></div>
+      <h2 class="mb-2 mt-7 text-[15px] font-extrabold">Questions</h2>
+      <div class="flex flex-col gap-2">
+        <details class="card px-4 py-1 text-[13px]"><summary class="flex min-h-[52px] cursor-pointer items-center justify-between font-bold">Is Lantern therapy?<span data-ic="chev" data-s="16"></span></summary><p class="pb-3 font-medium leading-relaxed text-muted">No. Lantern is a scripture reading aid — not counseling, diagnosis, or medical advice. In a crisis, contact 988 (US) or findahelpline.com.</p></details>
+        <details class="card px-4 py-1 text-[13px]"><summary class="flex min-h-[52px] cursor-pointer items-center justify-between font-bold">Where does scripture come from?<span data-ic="chev" data-s="16"></span></summary><p class="pb-3 font-medium leading-relaxed text-muted">Public-domain translations (WEB, KJV, ASV, BBE) fetched live from bible-api.com.</p></details>
+        <details class="card px-4 py-1 text-[13px]"><summary class="flex min-h-[52px] cursor-pointer items-center justify-between font-bold">How does matching work?<span data-ic="chev" data-s="16"></span></summary><p class="pb-3 font-medium leading-relaxed text-muted">Lantern reads what you share and matches it to scripture that fits. A built-in safety layer watches for crisis and harm and always surfaces care resources.</p></details>
+        <details class="card px-4 py-1 text-[13px]"><summary class="flex min-h-[52px] cursor-pointer items-center justify-between font-bold">Where is my data?<span data-ic="chev" data-s="16"></span></summary><p class="pb-3 font-medium leading-relaxed text-muted">On your device. Journal, settings and plan live in local storage. Export or erase anytime.</p></details>
+      </div>
+      <p class="mt-6 px-3 text-center text-[11px] font-medium text-muted">Hackathon build — plans are simulated locally, no card required.</p>
+    </section>
+
+    <!-- ============ CARE ============ -->
+    <section id="view-care" class="view hidden" aria-label="Support">
+      <header class="flex items-center gap-3">
+        <button class="sqbtn" style="height:48px;width:48px" onclick="back()" aria-label="Back"><span data-ic="back" data-s="20"></span></button>
+        <h1 class="text-[22px] font-extrabold tracking-tight">You matter</h1>
+      </header>
+      <div class="care-soft mt-5 rounded-3xl p-5">
+        <h2 class="flex items-center gap-2 text-[16px] font-extrabold"><span data-ic="shield" data-s="20"></span>Immediate support</h2>
+        <p class="mt-2 text-[13px] font-medium leading-relaxed">I am not a mental health professional. If you are feeling overwhelmed or having thoughts of suicide, please reach out right now — people want to listen.</p>
+        <ul class="mt-3 list-disc pl-5 text-[13px] font-medium leading-relaxed">
+          <li><b>US:</b> call or text <b>988</b> (Suicide &amp; Crisis Lifeline), 24/7</li>
+          <li><b>Text:</b> HOME to <b>741741</b> (Crisis Text Line)</li>
+          <li><b>International:</b> <a class="font-extrabold underline" href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a></li>
+          <li><b>Immediate danger:</b> call <b>911</b> or your local emergency number</li>
+        </ul>
+        <div class="mt-4 flex gap-2.5">
+          <a href="tel:988" class="btn-black" style="min-height:48px">Call 988</a>
+          <a href="sms:988" class="btn-soft" style="background:#fff;color:#8B1F14">Text 988</a>
+        </div>
+      </div>
+      <div class="mt-4 rounded-3xl p-5" style="background:#FFF3DA;color:#7A4B00">
+        <h2 class="text-[15px] font-extrabold">Worried about hurting someone or breaking the law?</h2>
+        <p class="mt-2 text-[13px] font-medium leading-relaxed">Lantern can't walk that road with you, but people can. Talking to a professional, clergy member, or trusted person today can change everything.</p>
+      </div>
+      <div class="card mt-4 p-5 text-[13px] font-medium leading-relaxed text-[#555]">The verses Lantern shares are meant to offer hope and remind you of God's enduring love and the value of your life. Please also consider a trusted person or professional. <b class="text-ink">Your life matters, and help is available.</b></div>
+    </section>
+  </main>
+
+  <!-- FLOATING NAV -->
+  <nav id="tabbar" class="tabbar" aria-label="Main">
+    <button class="nb" data-go="view-home" aria-label="Home"><span data-ic="home" data-s="22"></span><span class="lb">Home</span></button>
+    <button class="nb" data-go="view-scenarios" aria-label="Scenarios"><span data-ic="compass" data-s="22"></span><span class="lb">Scenarios</span></button>
+    <button class="nb" data-go="view-search" aria-label="Search"><span data-ic="search" data-s="22"></span><span class="lb">Search</span></button>
+    <button class="nb" data-go="view-journal" aria-label="Journal"><span data-ic="book" data-s="22"></span><span class="lb">Journal</span></button>
+    <button class="nb" data-go="view-settings" aria-label="Settings"><span data-ic="gear" data-s="22"></span><span class="lb">Settings</span></button>
+  </nav>
+  <div class="homebar" aria-hidden="true"></div>
+
+  <!-- SCRIM -->
+  <div id="scrim" onclick="closeSheets()" aria-hidden="true"></div>
+
+  <!-- MENU DRAWER -->
+  <aside id="drawer" class="sheet drawer" role="dialog" aria-modal="true" aria-label="Menu">
+    <div class="flex items-center justify-between px-2">
+      <div class="flex items-center gap-2.5"><span class="grid h-10 w-10 place-items-center rounded-2xl" style="background:var(--ac)"><svg viewBox="0 0 24 24" width="22" height="22" fill="#0A0A0A"><path d="M12 3c4 4.5 5.5 7.5 5.5 10.5a5.5 5.5 0 0 1-11 0C6.5 10.5 8 7.5 12 3Z"/></svg></span><span class="text-[20px] font-extrabold tracking-tight">Lantern</span></div>
+      <button class="sqbtn" onclick="closeSheets()" aria-label="Close menu"><span data-ic="x" data-s="18"></span></button>
+    </div>
+    <div class="mt-6 flex flex-col gap-1" id="drawerLinks"></div>
+    <button class="care-soft mt-5 flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-[13px] font-bold" onclick="closeSheets();go('view-care')"><span data-ic="shield" data-s="20" class="shrink-0"></span><span class="flex-1">Need support right now?</span><span data-ic="chev" data-s="16"></span></button>
+  </aside>
+
+  <!-- SCENARIO SHEET -->
+  <div id="sheet-scenario" class="sheet" role="dialog" aria-modal="true" aria-labelledby="ssTitle">
+    <div class="grab"></div>
+    <span id="ssTag" class="tag" style="background:var(--ac)"></span>
+    <h2 id="ssTitle" class="mt-2 text-[20px] font-extrabold leading-tight tracking-tight"></h2>
+    <p id="ssDesc" class="mt-1.5 text-[13.5px] font-medium leading-relaxed text-muted"></p>
+    <p class="mb-2 mt-5 text-[12px] font-bold text-muted">Start with one of these</p>
+    <div id="ssPrompts" class="flex flex-col gap-2"></div>
+    <button id="ssGo" class="btn-black mt-4" data-autofocus><span data-ic="sparkle" data-s="18"></span>Find verses for this</button>
+  </div>
+
+  <!-- LIMIT SHEET -->
+  <div id="sheet-limit" class="sheet" role="dialog" aria-modal="true" aria-labelledby="limTitle">
+    <div class="grab"></div>
+    <div class="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-full" style="background:var(--ac)"><span data-ic="sparkle" data-s="26"></span></div>
+    <h2 id="limTitle" class="text-center text-[20px] font-extrabold tracking-tight">You’ve used today’s free searches</h2>
+    <p class="mx-auto mt-2 max-w-[290px] text-center text-[13.5px] font-medium leading-relaxed text-muted">Free includes 3 verse searches a day. Lantern Plus gives you unlimited searches, all translations, voice and more.</p>
+    <button onclick="closeSheets();go('view-pricing')" class="btn-black mt-5" data-autofocus>See plans</button>
+    <button onclick="closeSheets()" class="btn-soft mt-2.5">Maybe later</button>
+  </div>
+
+  <!-- QUICK SETTINGS SHEET -->
+  <div id="sheet-filters" class="sheet" role="dialog" aria-modal="true" aria-labelledby="flTitle">
+    <div class="grab"></div>
+    <h2 id="flTitle" class="text-[20px] font-extrabold tracking-tight">Verse settings</h2>
+    <p class="mt-1 text-[13px] font-medium text-muted">Changes apply to your next search.</p>
+    <p class="mb-2 mt-5 text-[12px] font-bold text-muted">Translation</p>
+    <div class="seg" data-seg="trans" role="group" aria-label="Translation"><button data-v="web">WEB</button><button data-v="kjv">KJV</button><button data-v="asv">ASV</button><button data-v="bbe">BBE</button></div>
+    <p class="mb-2 mt-5 text-[12px] font-bold text-muted">Content boundary</p>
+    <div class="seg" data-seg="bound" role="group" aria-label="Content boundary"><button data-v="standard">Standard</button><button data-v="strict">Strict</button></div>
+    <button class="row tg mt-3" data-tg="why" role="switch" aria-checked="false"><span>Show “why this verse”</span><i class="knob"></i></button>
+    <button onclick="closeSheets()" class="btn-black mt-3" data-autofocus>Done</button>
+  </div>
+
+  <!-- CONFIRM SHEET -->
+  <div id="sheet-confirm" class="sheet" role="alertdialog" aria-modal="true" aria-labelledby="cfTitle" aria-describedby="cfBody">
+    <div class="grab"></div>
+    <h2 id="cfTitle" class="text-[20px] font-extrabold tracking-tight"></h2>
+    <p id="cfBody" class="mt-1.5 text-[13.5px] font-medium leading-relaxed text-muted"></p>
+    <button id="cfOk" class="btn-danger mt-5"></button>
+    <button onclick="closeSheets()" class="btn-soft mt-2.5" data-autofocus>Cancel</button>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ONBOARDING -->
+  <div id="onboard" role="dialog" aria-modal="true" aria-label="Welcome to Lantern" tabindex="-1" class="hidden">
+    <button id="obSkip" class="absolute right-5 z-10 min-h-[44px] rounded-xl px-3 text-[14px] font-bold" style="top:calc(var(--top) + 8px)" onclick="finishOnboarding()">Skip</button>
+    <div class="ob-stage" id="obStage">
+      <div class="ob-track" id="obTrack"></div>
+      <div id="obDecor" aria-hidden="true"></div>
+    </div>
+    <div class="ob-card">
+      <div class="ob-dash" id="obDash" role="tablist" aria-label="Intro steps"></div>
+      <div class="ob-txt" id="obTxt">
+        <h2 id="obTitle" class="text-[24px] font-extrabold leading-[1.15] tracking-tight"></h2>
+        <p id="obText" class="mt-2.5 min-h-[66px] text-[15px] font-medium leading-relaxed text-muted"></p>
+      </div>
+      <button id="obNext" class="btn-black mt-4" style="min-height:54px"></button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/art.js"></script>
+<script src="js/state.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/safety.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/scripture.js"></script>
+<script src="js/results.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/scenarios.js"></script>
+<script src="js/home.js"></script>
+<script src="js/search.js"></script>
+<script src="js/journal.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/pricing.js"></script>
+<script src="js/onboarding.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
